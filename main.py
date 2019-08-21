@@ -29,8 +29,12 @@ class S(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
+    def _process_path(self):
+        print("PATH: %r" % self.path)
+
     def do_GET(self):
         self._print_headers()
+        self._process_path()
         self._set_headers()
         self.wfile.write("<html><body><h1>hi!</h1></body></html>")
 
@@ -39,6 +43,7 @@ class S(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self._print_headers()
+        self._process_path()
         self._set_headers()
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
