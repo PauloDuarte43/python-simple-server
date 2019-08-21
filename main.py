@@ -3,7 +3,7 @@
 Very simple HTTP server in python.
 
 Usage::
-    ./dummy-web-server.py [<port>]
+    ./main.py [<port>]
 
 Send a GET request::
     curl http://localhost
@@ -20,22 +20,26 @@ import SocketServer
 from io import BytesIO
 
 class S(BaseHTTPRequestHandler):
+    def _print_headers(self):
+        for h in self.headers:
+            print("HEADER: %r" % self.headers[h])
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
     def do_GET(self):
+        self._print_headers()
         self._set_headers()
         self.wfile.write("<html><body><h1>hi!</h1></body></html>")
 
     def do_HEAD(self):
         self._set_headers()
-        
+
     def do_POST(self):
-        # Doesn't do anything with posted data
+        self._print_headers()
         self._set_headers()
-        #self.wfile.write("<html><body><h1>POST!</h1></body></html>")
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
         response = BytesIO()
@@ -44,17 +48,7 @@ class S(BaseHTTPRequestHandler):
         response.write(body)
         self.wfile.write(response.getvalue())
 
-	#def do_POST(self):
-	#	content_length = int(self.headers['Content-Length'])
-	#	body = self.rfile.read(content_length)
-	#	self.send_response(200)
-	#	self.end_headers()
-	#	response = BytesIO()
-	#	response.write(b'This is POST request. ')
-	#	response.write(b'Received: ')
-	#	response.write(body)
-	#	self.wfile.write(response.getvalue())
-        
+
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
